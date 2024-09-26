@@ -1,4 +1,4 @@
--- Exploratory Data Analysis
+-- Exploratory Data Analysis in MySQL
 
 SELECT *
 FROM layoffs_staging2;
