@@ -1,4 +1,4 @@
--- Data Cleaning 
+-- Data Cleaning in MySQL
 
 SELECT * 
 FROM layoffs;
