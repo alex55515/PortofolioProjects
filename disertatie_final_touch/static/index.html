@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Adeverinte de Prezenta</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<div class="page active" id="page-login">
+  <div class="login-card">
+    <div class="login-logo">Adeverinte</div>
+    <div class="login-sub">Sistem de gestionare a adeverintelor de prezenta obligatorie</div>
+    <div class="tabs-login">
+      <button class="active" onclick="switchAuthTab('login')">Autentificare</button>
+      <button onclick="switchAuthTab('register')">Cont nou student</button>
+    </div>
+
+    <div id="login-form" autocomplete="off">
+      <div class="form-group">
+        <label>Utilizator</label>
+        <input type="text" id="inp-user" placeholder="ex: student1" autocomplete="off" />
+      </div>
+      <div class="form-group">
+        <label>Parola</label>
+        <input type="password" id="inp-pass" placeholder="........" autocomplete="new-password" />
+      </div>
+      <button class="btn-primary" onclick="doLogin()">Autentificare</button>
+    </div>
+
+    <div id="register-form" autocomplete="off">
+      <div class="form-group">
+        <label>Nume complet</label>
+        <input type="text" id="reg-nume" placeholder="ex: Popescu Ion" autocomplete="off" />
+      </div>
+      <div class="form-group">
+        <label>Grupa</label>
+        <input type="text" id="reg-grupa" placeholder="ex: SIIPA-301" autocomplete="off" />
+      </div>
+      <div class="form-group">
+        <label>Utilizator</label>
+        <input type="text" id="reg-user" placeholder="username unic" autocomplete="off" />
+      </div>
+      <div class="form-group">
+        <label>Parola</label>
+        <input type="password" id="reg-pass" placeholder="minim 6 caractere" autocomplete="new-password" />
+      </div>
+      <button class="btn-primary" onclick="doRegister()">Creare cont</button>
+    </div>
+
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<div class="page" id="page-student">
+  <header class="app-header">
+    <div class="header-brand">Adeverinte de Prezenta</div>
+    <div class="header-right">
+      <div class="header-user"><span id="hdr-student-name">-</span><span class="user-badge badge-student">Student</span></div>
+      <button class="btn-logout" onclick="doLogout()">Iesire</button>
+    </div>
+  </header>
+  <main class="app-main">
+    <div class="section-title">Adeverintele mele</div>
+    <div class="section-sub">Incarcati adeverinte si urmariti statusul procesarii.</div>
+    <div class="card" style="margin-bottom:24px;">
+      <div class="card-header"><span class="card-title">Adauga adeverinta noua</span></div>
+      <div class="card-body">
+        <div class="upload-area" id="drop-area" ondragover="onDragOver(event)" ondrop="onDrop(event)" ondragleave="onDragLeave()">
+          <input type="file" id="file-input" accept=".pdf,.xlsx,.xls,.txt,.png,.jpg,.jpeg,.doc,.docx" onchange="onFileSelect(event)" />
+          <div class="upload-icon">+</div>
+          <div class="upload-text">Trage fisierul aici sau click pentru selectare</div>
+          <div class="upload-hint">PDF, Excel, Word, imagine sau text - Max 10MB</div>
+        </div>
+        <div class="upload-preview" id="upload-preview">
+          <span>Fisier:</span>
+          <span class="preview-name" id="preview-name">-</span>
+          <span class="preview-size" id="preview-size">-</span>
+          <button onclick="clearFile()" style="background:none;border:none;color:var(--ink2);cursor:pointer;font-size:1.1rem;">x</button>
+        </div>
+        <div style="margin-top:14px;display:flex;justify-content:flex-end;">
+          <button class="btn-upload" id="btn-upload" onclick="uploadFile()" disabled>Incarca adeverinta</button>
+        </div>
+        <div class="upload-result" id="upload-result"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Adeverinte trimise</span>
+        <button onclick="loadMyAdeverinte(1)" style="background:none;border:none;color:var(--ink2);cursor:pointer;font-size:.82rem;">Actualizeaza</button>
+      </div>
+      <div class="card-body">
+        <div id="my-adv-list"><div class="loading-row"><span class="loader"></span></div></div>
+        <div class="pagination-bar" id="my-adv-pagination"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="page" id="page-secretariat">
+  <header class="app-header">
+    <div class="header-brand">Adeverinte de Prezenta</div>
+    <div class="header-right">
+      <div class="header-user"><span id="hdr-sec-name">-</span><span class="user-badge badge-secretariat">Secretariat</span></div>
+      <button class="btn-logout" onclick="doLogout()">Iesire</button>
+    </div>
+  </header>
+  <main class="app-main">
+    <div class="stats-row" id="stats-row">
+      <div class="stat-card"><div class="stat-num" id="st-students">-</div><div class="stat-label">Studenti</div></div>
+      <div class="stat-card pending"><div class="stat-num" id="st-pending">-</div><div class="stat-label">In asteptare</div></div>
+      <div class="stat-card confirmed"><div class="stat-num" id="st-confirmed">-</div><div class="stat-label">Confirmate</div></div>
+      <div class="stat-card rejected"><div class="stat-num" id="st-rejected">-</div><div class="stat-label">Respinse</div></div>
+    </div>
+
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="secTab('students')">Pe studenti</button>
+      <button class="nav-tab" onclick="secTab('all')">Toate adeverintele</button>
+    </div>
+
+    <div id="tab-students">
+      <div class="toolbar">
+        <div class="search-wrap">
+          <span class="search-icon">?</span>
+          <input type="text" id="search-student" placeholder="Cauta dupa nume sau username..." oninput="loadStudents()" />
+        </div>
+        <select class="filter-select" id="filter-grupa" onchange="loadStudents()">
+          <option value="">Toate grupele</option>
+        </select>
+      </div>
+
+      <div class="sec-layout">
+        <div>
+          <div class="student-list" id="student-list"><div class="loading-row"><span class="loader"></span></div></div>
+          <div class="pagination-bar list-pagination" id="student-list-pagination"></div>
+        </div>
+        <div class="card adv-panel" id="adv-panel">
+          <div class="card-header" id="panel-header"><span class="card-title">Selectati un student</span></div>
+          <div class="card-body" id="panel-body">
+            <div class="panel-empty"><div class="panel-empty-icon">Student</div>Selectati un student din lista pentru a vedea adeverintele sale.</div>
+          </div>
+          <div class="pagination-bar panel-pagination" id="student-adv-pagination"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-all" style="display:none;">
+      <div class="toolbar">
+        <div class="search-wrap">
+          <span class="search-icon">?</span>
+          <input type="text" id="search-all" placeholder="Cauta in toate adeverintele..." oninput="loadAllAdeverinte(1)" />
+        </div>
+        <select class="filter-select" id="filter-status-all" onchange="loadAllAdeverinte(1)">
+          <option value="">Toate statusurile</option>
+          <option value="in_asteptare">In asteptare</option>
+          <option value="confirmata">Confirmate</option>
+          <option value="respinsa">Respinse</option>
+        </select>
+        <button onclick="loadAllAdeverinte(1)" style="padding:9px 14px;background:var(--surface);border:1.5px solid var(--border);border-radius:8px;font-size:.85rem;color:var(--ink2);">Refresh</button>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Student</th>
+                <th>Grupa</th>
+                <th>Fisier</th>
+                <th>Data prezenta</th>
+                <th>Ore</th>
+                <th>Status</th>
+                <th>Incarcat</th>
+                <th>Actiuni</th>
+              </tr>
+            </thead>
+            <tbody id="all-table-body"><tr><td colspan="9" class="loading-row"><span class="loader"></span></td></tr></tbody>
+          </table>
+        </div>
+        <div class="pagination-bar" id="all-adv-pagination"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">Procesare adeverinta</div>
+    <div id="modal-adv-info" style="font-size:.85rem;color:var(--ink2);margin-bottom:16px;"></div>
+    <div class="form-group">
+      <label>Observatii (optional)</label>
+      <textarea class="obs-input" id="modal-obs" rows="3" placeholder="Adauga un comentariu..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Anulare</button>
+      <button class="btn-reject" onclick="submitReview('respinsa')">Respinge</button>
+      <button class="btn-confirm" onclick="submitReview('confirmata')">Confirma</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script src="js/script.js"></script>
+</body>
+</html>
